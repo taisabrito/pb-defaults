@@ -2,6 +2,9 @@
 
 Configure default values for your Pocketbase collection fields
 
+![pbdefaultvideo](https://github.com/user-attachments/assets/d7a79fbd-ab97-477e-9610-570721709ca1)
+
+
 ## Overview
 
 **pb-defaults** is a simple and easy-to-use extension for Pocketbase that allows you to configure default values for your collection fields through a user-friendly admin interface. No need to manually write hooks - just use the visual dashboard to set your defaults!
