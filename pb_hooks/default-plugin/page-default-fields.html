@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Default Values Manager</title>
+    <link rel="shortcut icon" type="image/png" href="../_/images/favicon/favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .auth-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #48bb78;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .collections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .collection-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .collection-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .collection-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .collection-card .type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e6e9f5;
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .collection-card .fields-count {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 50px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            margin-bottom: 50px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .field-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .field-item.disabled {
+            opacity: 0.5;
+            border-left-color: #ccc;
+        }
+
+        .field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .field-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .field-type {
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .field-info {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select.field-input {
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-item:hover {
+            border-color: #667eea;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3c3;
+        }
+
+        .modal-footer {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div>
+                    <h1 id="headerTitle">⚙️ Default Values Manager</h1>
+                    <p id="headerSubtitle">Configure default values for your Pocketbase collection fields</p>
+                </div>
+                <div>
+                    <select id="languageSelect" onchange="changeLanguage()" style="padding: 8px 12px; border: 2px solid #667eea; border-radius: 8px; font-size: 14px; cursor: pointer; background: white;">
+                        <option value="en">🇺🇸 English</option>
+                        <option value="pt">🇧🇷 Português</option>
+                        <option value="es">🇪🇸 Español</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="mainContent" class="hidden">
+            <div id="messageArea"></div>
+            <div id="collectionsContainer"></div>
+        </div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle"></h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </div>
+                <div id="modalBody"></div>
+                <div class="modal-footer">
+                    <button class="btn" onclick="closeModal()" id="cancelBtn">Cancel</button>
+                    <button class="btn btn-success" onclick="saveDefaults()" id="saveBtn">Save Default Values</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPERUSER_TOKEN = JSON.parse(localStorage.getItem('__pb_superuser_auth__'))?.token
+        if (!SUPERUSER_TOKEN || JSON.parse(atob(SUPERUSER_TOKEN.split('.')[1])).exp < Math.round(Date.now()/1000))
+            window.location.href = window.location.origin + '/_/#/login'
+        
+        let collections = [];
+        let defaultFields = {};
+        let currentCollection = null;
+        let currentLanguage = 'en';
+
+        const translations = {
+            en: {
+                headerTitle: '⚙️ Default Values Manager',
+                headerSubtitle: 'Configure default values for your Pocketbase collection fields',
+                authTitle: '🔐 Authentication',
+                tokenLabel: 'Authentication Token:',
+                tokenPlaceholder: 'Paste your token here',
+                connectBtn: 'Connect',
+                cancelBtn: 'Cancel',
+                saveBtn: 'Save Default Values',
+                collectionsTitle: '📋 Available Collections',
+                editableFields: 'editable field(s)',
+                noCollections: 'No collections with editable fields found.',
+                noDefault: '-- No default value --',
+                trueOption: 'True',
+                falseOption: 'False',
+                enterToken: 'Please enter the authentication token.',
+                authenticating: 'Authenticating...',
+                connectedSuccess: 'Successfully connected!',
+                authError: 'Authentication error: ',
+                loadError: 'Failed to load collections',
+                jsonError: 'JSON error in field',
+                saveError: 'Failed to save default values',
+                saveSuccess: '✅ Default values saved successfully!',
+                collection: 'Collection:',
+                fieldId: 'ID:'
+            },
+            pt: {
+                headerTitle: '⚙️ Gerenciador de Valores Padrão',
+                headerSubtitle: 'Configure valores padrão para os campos das suas coleções no Pocketbase',
+                authTitle: '🔐 Autenticação',
+                tokenLabel: 'Token de Autenticação:',
+                tokenPlaceholder: 'Cole seu token aqui',
+                connectBtn: 'Conectar',
+                cancelBtn: 'Cancelar',
+                saveBtn: 'Salvar Valores Padrão',
+                collectionsTitle: '📋 Coleções Disponíveis',
+                editableFields: 'campo(s) editável(is)',
+                noCollections: 'Nenhuma coleção com campos editáveis encontrada.',
+                noDefault: '-- Sem valor padrão --',
+                trueOption: 'Verdadeiro',
+                falseOption: 'Falso',
+                enterToken: 'Por favor, insira o token de autenticação.',
+                authenticating: 'Autenticando...',
+                connectedSuccess: 'Conectado com sucesso!',
+                authError: 'Erro na autenticação: ',
+                loadError: 'Falha ao carregar coleções',
+                jsonError: 'Erro no JSON do campo',
+                saveError: 'Falha ao salvar valores padrão',
+                saveSuccess: '✅ Valores padrão salvos com sucesso!',
+                collection: 'Coleção:',
+                fieldId: 'ID:'
+            },
+            es: {
+                headerTitle: '⚙️ Gestor de Valores Predeterminados',
+                headerSubtitle: 'Configure valores predeterminados para los campos de sus colecciones en Pocketbase',
+                authTitle: '🔐 Autenticación',
+                tokenLabel: 'Token de Autenticación:',
+                tokenPlaceholder: 'Pegue su token aquí',
+                connectBtn: 'Conectar',
+                cancelBtn: 'Cancelar',
+                saveBtn: 'Guardar Valores Predeterminados',
+                collectionsTitle: '📋 Colecciones Disponibles',
+                editableFields: 'campo(s) editable(s)',
+                noCollections: 'No se encontraron colecciones con campos editables.',
+                noDefault: '-- Sin valor predeterminado --',
+                trueOption: 'Verdadero',
+                falseOption: 'Falso',
+                enterToken: 'Por favor, ingrese el token de autenticación.',
+                authenticating: 'Autenticando...',
+                connectedSuccess: '¡Conectado con éxito!',
+                authError: 'Error de autenticación: ',
+                loadError: 'Error al cargar colecciones',
+                jsonError: 'Error de JSON en el campo',
+                saveError: 'Error al guardar valores predeterminados',
+                saveSuccess: '✅ ¡Valores predeterminados guardados con éxito!',
+                collection: 'Colección:',
+                fieldId: 'ID:'
+            }
+        };
+
+        function changeLanguage() {
+            currentLanguage = document.getElementById('languageSelect').value;
+            updateUILanguage();
+        }
+
+        function updateUILanguage() {
+            const t = translations[currentLanguage];
+            
+            document.getElementById('headerTitle').textContent = t.headerTitle;
+            document.getElementById('headerSubtitle').textContent = t.headerSubtitle;
+            document.getElementById('cancelBtn').textContent = t.cancelBtn;
+            document.getElementById('saveBtn').textContent = t.saveBtn;
+            window.document.title = t.headerTitle;
+
+            if (collections.length > 0 && !document.getElementById('authSection').classList.contains('hidden')) {
+                renderCollections();
+            }
+        }
+
+        function t(key) {
+            return translations[currentLanguage][key] || key;
+        }
+
+        async function authenticate() {
+
+            try {
+                await loadCollections();
+                await loadDefaultFields();
+                
+                //document.getElementById('authSection').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+            } catch (error) {
+                showMessage(t('authError') + error.message, 'error');
+                window.location.href = window.location.origin + '/_/#/login'
+            }
+        }
+
+        async function loadCollections() {
+            const response = await fetch(window.location.origin + '/api/collections', {
+                headers: {
+                    'Authorization': SUPERUSER_TOKEN
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(t('loadError'));
+            }
+
+            const data = await response.json();
+            collections = data.items;
+            renderCollections();
+        }
+
+        async function loadDefaultFields() {
+            const response = await fetch(window.location.origin + '/api/default-fields', {
+                headers: {
+                    'Authorization': SUPERUSER_TOKEN
+                }
+            });
+
+            if (!response.ok) {
+                defaultFields = {};
+                return;
+            }
+
+            defaultFields = await response.json();
+        }
+
+        function renderCollections() {
+            const container = document.getElementById('collectionsContainer');
+            const editableFields = collections.map(col => {
+                const fields = col.fields.filter(f => canHaveDefault(f));
+                return { collection: col, count: fields.length };
+            }).filter(item => item.count > 0);
+
+            if (editableFields.length === 0) {
+                container.innerHTML = `<div class="auth-section"><p style="text-align: center; color: #666;">${t('noCollections')}</p></div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="auth-section">
+                    <h2>${t('collectionsTitle')}</h2>
+                    <div class="collections-grid">
+                        ${editableFields.map(item => `
+                            <div class="collection-card" onclick="openCollection('${item.collection.name}')">
+                                <div class="type-badge">${item.collection.type}</div>
+                                <h3>${item.collection.name}</h3>
+                                <p class="fields-count">${item.count} ${t('editableFields')}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function canHaveDefault(field) {
+            if (field.required) return false;
+            if (field.system) return false;
+            if (field.type === 'text' && field.autogeneratePattern) return false;
+            if (field.type === 'autodate') return false;
+            if (field.type === 'file') return false;
+            return true;
+        }
+
+        function openCollection(collectionName) {
+            currentCollection = collections.find(c => c.name === collectionName);
+            if (!currentCollection) return;
+
+            const editableFields = currentCollection.fields.filter(canHaveDefault);
+            const currentDefaults = defaultFields[collectionName] || {};
+
+            document.getElementById('modalTitle').textContent = `${t('collection')} ${collectionName}`;
+            document.getElementById('modalBody').innerHTML = editableFields.map(field => 
+                renderFieldInput(field, currentDefaults[field.name])
+            ).join('');
+
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function renderFieldInput(field, currentValue) {
+            const fieldId = `field_${field.id}`;
+            
+            let inputHtml = '';
+            
+            switch(field.type) {
+                case 'bool':
+                    inputHtml = `
+                        <select class="field-input" id="${fieldId}">
+                            <option value="">${t('noDefault')}</option>
+                            <option value="true" ${currentValue === true ? 'selected' : ''}>${t('trueOption')}</option>
+                            <option value="false" ${currentValue === false ? 'selected' : ''}>${t('falseOption')}</option>
+                        </select>
+                    `;
+                    break;
+                
+                case 'select':
+                    if (field.maxSelect === 1) {
+                        inputHtml = `
+                            <select class="field-input" id="${fieldId}">
+                                <option value="">${t('noDefault')}</option>
+                                ${field.values.map(val => `
+                                    <option value="${val}" ${currentValue && currentValue[0] === val ? 'selected' : ''}>${val}</option>
+                                `).join('')}
+                            </select>
+                        `;
+                    } else {
+                        inputHtml = `
+                            <div class="checkbox-group">
+                                ${field.values.map(val => `
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" name="${fieldId}" value="${val}" 
+                                            ${currentValue && currentValue.includes(val) ? 'checked' : ''}>
+                                        <span>${val}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                    break;
+                
+                case 'number':
+                    inputHtml = `
+                        <input type="number" class="field-input" id="${fieldId}" 
+                            value="${currentValue || ''}" placeholder="${t('noDefault')}">
+                    `;
+                    break;
+                
+                case 'date':
+                    inputHtml = `
+                        <input type="datetime-local" class="field-input" id="${fieldId}" 
+                            value="${currentValue || ''}" placeholder="${t('noDefault')}">
+                    `;
+                    break;
+                
+                case 'json':
+                    inputHtml = `
+                        <textarea class="field-input" id="${fieldId}" rows="4" 
+                            placeholder='{"exemplo": "valor"}'>${currentValue ? JSON.stringify(currentValue, null, 2) : ''}</textarea>
+                    `;
+                    break;
+                
+                default:
+                    inputHtml = `
+                        <input type="text" class="field-input" id="${fieldId}" 
+                            value="${currentValue || ''}" placeholder="${t('noDefault')}">
+                    `;
+            }
+
+            return `
+                <div class="field-item">
+                    <div class="field-header">
+                        <span class="field-name">${field.name}</span>
+                        <span class="field-type">${field.type}</span>
+                    </div>
+                    <div class="field-info">${t('fieldId')} ${field.id}</div>
+                    ${inputHtml}
+                </div>
+            `;
+        }
+
+        async function saveDefaults() {
+            if (!currentCollection) return;
+
+            const editableFields = currentCollection.fields.filter(canHaveDefault);
+            const newDefaults = {};
+
+            for (const field of editableFields) {
+                const fieldId = `field_${field.id}`;
+                let value = null;
+
+                if (field.type === 'select' && field.maxSelect > 1) {
+                    const checkboxes = document.querySelectorAll(`input[name="${fieldId}"]:checked`);
+                    value = Array.from(checkboxes).map(cb => cb.value);
+                    if (value.length === 0) value = null;
+                } else if (field.type === 'bool') {
+                    const selectValue = document.getElementById(fieldId).value;
+                    if (selectValue === 'true') value = true;
+                    else if (selectValue === 'false') value = false;
+                } else if (field.type === 'select' && field.maxSelect === 1) {
+                    const selectValue = document.getElementById(fieldId).value;
+                    value = selectValue ? [selectValue] : null;
+                } else if (field.type === 'date') {
+                    const inputValue = document.getElementById(fieldId).value.trim();
+
+                    //A data deve estar no formato ISO 8601
+
+                    if (inputValue) {
+                        const date = new Date(inputValue);
+                        if (isNaN(date.getTime())) {
+                            showMessage(`${t('jsonError')} "${field.name}": Invalid date format`, 'error');
+                            return;
+                        }
+                        value = date.toISOString();
+                    } else {
+                        value = null;
+                    }
+
+                    
+                } else if (field.type === 'json') {
+                    const jsonText = document.getElementById(fieldId).value.trim();
+                    if (jsonText) {
+                        try {
+                            value = JSON.parse(jsonText);
+                        } catch (e) {
+                            showMessage(`${t('jsonError')} "${field.name}": ${e.message}`, 'error');
+                            return;
+                        }
+                    }
+                } else {
+                    const inputValue = document.getElementById(fieldId).value.trim();
+                    value = inputValue || null;
+                }
+
+                if (value !== null) {
+                    newDefaults[field.name] = value;
+                }
+            }
+
+            defaultFields[currentCollection.name] = newDefaults;
+
+            try {
+                const response = await fetch(window.location.origin + '/api/default-fields', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': SUPERUSER_TOKEN,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(defaultFields)
+                });
+
+                if (!response.ok) {
+                    throw new Error(t('saveError'));
+                }
+
+                showMessage(t('saveSuccess'), 'success');
+                closeModal();
+                setTimeout(() => clearMessage(), 3000);
+            } catch (error) {
+                showMessage(t('saveError'), 'error');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            currentCollection = null;
+        }
+
+        function showMessage(message, type) {
+            const area = document.getElementById('messageArea');
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'auth-section';
+            area.innerHTML = `<div class="${className}">${message}</div>`;
+        }
+
+        function clearMessage() {
+            document.getElementById('messageArea').innerHTML = '';
+        }
+
+        // Initial UI language setup
+        updateUILanguage();
+        // Start authentication process
+        authenticate();
+    </script>
+</body>
+</html>
